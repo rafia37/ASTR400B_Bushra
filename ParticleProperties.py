@@ -45,7 +45,7 @@ if __name__ == "__main__":
     x, y, z, vx, vy, vz, mass = ParticleInfo(filename, ind)   #Collecting information about requested particle
     
     print('')    #For readability in terminal
-    print('Information about the %i th particle:' % ind)
+    print('Information about the %i th particle:' % (ind+1))
     print('')
     print('Distance in (x,y,z) kpc: (%.3f, %.3f, %.3f)' % (x.value, y.value, z.value))
     print('')
