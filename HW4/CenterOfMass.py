@@ -123,97 +123,99 @@ class CenterOfMass:
 # Printing answers to the terminal
 ##########################
 
-# Creating Center of mass objects for the MW, M31, M33
-MWCOM  = CenterOfMass("../../MW_000.txt", 2)
-M31COM = CenterOfMass("../../M31_000.txt", 2)
-M33COM = CenterOfMass("../../M33_000.txt", 2)
+if __name__ == "__main__":
+
+    # Creating Center of mass objects for the MW, M31, M33
+    MWCOM  = CenterOfMass("../../MW_000.txt", 2)
+    M31COM = CenterOfMass("../../M31_000.txt", 2)
+    M33COM = CenterOfMass("../../M33_000.txt", 2)
 
 
-# Calculating quantities for MW data
-print('')
-print('')
-print('Problem 1:')
-print('')
-print('MW Parameters:')
-print('')
+    # Calculating quantities for MW data
+    print('')
+    print('')
+    print('Problem 1:')
+    print('')
+    print('MW Parameters:')
+    print('')
 
-MW_mass = MWCOM.total_mass()
-print("Disk Mass: %.2f solar mass" % MW_mass.value)
+    MW_mass = MWCOM.total_mass()
+    print("Disk Mass: %.2f solar mass" % MW_mass.value)
 
-print('')
+    print('')
 
-mw_x, mw_y, mw_z = MWCOM.COMdefine(MWCOM.x, MWCOM.y, MWCOM.z)
-print("COM Position (kpc): %.2f, %.2f, %.2f" % (mw_x.value, mw_y.value, mw_z.value))
+    mw_x, mw_y, mw_z = MWCOM.COMdefine(MWCOM.x, MWCOM.y, MWCOM.z)
+    print("COM Position (kpc): %.2f, %.2f, %.2f" % (mw_x.value, mw_y.value, mw_z.value))
 
-print('')
-mw_vx, mw_vy, mw_vz = MWCOM.COMdefine(MWCOM.vx, MWCOM.vy, MWCOM.vz)
-print("COM Velocity (km/s): %.2f, %.2f, %.2f" % (mw_vx.value, mw_vy.value, mw_vz.value))
-
-
-# Calculate quantities for M31 data
-print('')
-print('')
-print('M31 Parameters:')
-print('')
-
-M31_mass = M31COM.total_mass()
-print("Disk Mass: %.2f solar mass" % M31_mass.value)
-
-print('')
-
-m31_x, m31_y, m31_z = M31COM.COMdefine(M31COM.x, M31COM.y, M31COM.z)
-print("COM Position (kpc): %.2f, %.2f, %.2f" % (m31_x.value, m31_y.value, m31_z.value))
-
-print('')
-m31_vx, m31_vy, m31_vz = M31COM.COMdefine(M31COM.vx, M31COM.vy, M31COM.vz)
-print("COM Velocity (km/s): %.2f, %.2f, %.2f" % (m31_vx.value, m31_vy.value, m31_vz.value))
+    print('')
+    mw_vx, mw_vy, mw_vz = MWCOM.COMdefine(MWCOM.vx, MWCOM.vy, MWCOM.vz)
+    print("COM Velocity (km/s): %.2f, %.2f, %.2f" % (mw_vx.value, mw_vy.value, mw_vz.value))
 
 
-# Calculate quantities for M33 data
-print('')
-print('')
-print('M33 Parameters:')
-print('')
+    # Calculate quantities for M31 data
+    print('')
+    print('')
+    print('M31 Parameters:')
+    print('')
 
-M33_mass = M33COM.total_mass()
-print("Disk Mass: %.2f solar mass" % M33_mass.value)
+    M31_mass = M31COM.total_mass()
+    print("Disk Mass: %.2f solar mass" % M31_mass.value)
 
-print('')
+    print('')
 
-m33_x, m33_y, m33_z = M33COM.COMdefine(M33COM.x, M33COM.y, M33COM.z)
-print("COM Position (kpc): %.2f, %.2f, %.2f" % (m33_x.value, m33_y.value, m33_z.value))
+    m31_x, m31_y, m31_z = M31COM.COMdefine(M31COM.x, M31COM.y, M31COM.z)
+    print("COM Position (kpc): %.2f, %.2f, %.2f" % (m31_x.value, m31_y.value, m31_z.value))
 
-print('')
-m33_vx, m33_vy, m33_vz = M33COM.COMdefine(M33COM.vx, M33COM.vy, M33COM.vz)
-print("COM Velocity (km/s): %.2f, %.2f, %.2f" % (m33_vx.value, m33_vy.value, m33_vz.value))
-
-
-#Calculating separations
-print('')
-print('')
-print('Problem 2:')
-print('')
-print('Separation between MW & M31:')
-mw_m31_pos = np.sqrt((mw_x - m31_x)**2 + (mw_y - m31_y)**2 + (mw_z - m31_z)**2)
-print('Position(kpc) : %.2f' % mw_m31_pos.value)
-mw_m31_vel = np.sqrt((mw_vx - m31_vx)**2 + (mw_vy - m31_vy)**2 + (mw_vz - m31_vz)**2)
-print('Velocity(km/s) : %.2f' % mw_m31_vel.value)
-
-print('')
-print('')
-print('Problem 3:')
-print('')
-print('Separation between M33 & M31:')
-m33_m31_pos = np.sqrt((m33_x - m31_x)**2 + (m33_y - m31_y)**2 + (m33_z - m31_z)**2)
-print('Position(kpc) : %.2f' % m33_m31_pos.value)
-m33_m31_vel = np.sqrt((m33_vx - m31_vx)**2 + (m33_vy - m31_vy)**2 + (m33_vz - m31_vz)**2)
-print('Velocity(km/s) : %.2f' % m33_m31_vel.value)
+    print('')
+    m31_vx, m31_vy, m31_vz = M31COM.COMdefine(M31COM.vx, M31COM.vy, M31COM.vz)
+    print("COM Velocity (km/s): %.2f, %.2f, %.2f" % (m31_vx.value, m31_vy.value, m31_vz.value))
 
 
-#Answer to part 6 question 4
-print('')
-print('')
-print('Problem 4:')
-print('')
-print('The iterative process is important because we need accurate convergance of the COM position to study their collision where their COM positions will be very close to each other.')
-print('')
+    # Calculate quantities for M33 data
+    print('')
+    print('')
+    print('M33 Parameters:')
+    print('')
+
+    M33_mass = M33COM.total_mass()
+    print("Disk Mass: %.2f solar mass" % M33_mass.value)
+
+    print('')
+
+    m33_x, m33_y, m33_z = M33COM.COMdefine(M33COM.x, M33COM.y, M33COM.z)
+    print("COM Position (kpc): %.2f, %.2f, %.2f" % (m33_x.value, m33_y.value, m33_z.value))
+
+    print('')
+    m33_vx, m33_vy, m33_vz = M33COM.COMdefine(M33COM.vx, M33COM.vy, M33COM.vz)
+    print("COM Velocity (km/s): %.2f, %.2f, %.2f" % (m33_vx.value, m33_vy.value, m33_vz.value))
+
+
+    #Calculating separations
+    print('')
+    print('')
+    print('Problem 2:')
+    print('')
+    print('Separation between MW & M31:')
+    mw_m31_pos = np.sqrt((mw_x - m31_x)**2 + (mw_y - m31_y)**2 + (mw_z - m31_z)**2)
+    print('Position(kpc) : %.2f' % mw_m31_pos.value)
+    mw_m31_vel = np.sqrt((mw_vx - m31_vx)**2 + (mw_vy - m31_vy)**2 + (mw_vz - m31_vz)**2)
+    print('Velocity(km/s) : %.2f' % mw_m31_vel.value)
+
+    print('')
+    print('')
+    print('Problem 3:')
+    print('')
+    print('Separation between M33 & M31:')
+    m33_m31_pos = np.sqrt((m33_x - m31_x)**2 + (m33_y - m31_y)**2 + (m33_z - m31_z)**2)
+    print('Position(kpc) : %.2f' % m33_m31_pos.value)
+    m33_m31_vel = np.sqrt((m33_vx - m31_vx)**2 + (m33_vy - m31_vy)**2 + (m33_vz - m31_vz)**2)
+    print('Velocity(km/s) : %.2f' % m33_m31_vel.value)
+
+
+    #Answer to part 6 question 4
+    print('')
+    print('')
+    print('Problem 4:')
+    print('')
+    print('The iterative process is important because we need accurate convergance of the COM position to study their collision where their COM positions will be very close to each other.')
+    print('')
