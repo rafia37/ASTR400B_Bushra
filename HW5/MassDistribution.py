@@ -37,11 +37,10 @@ class MassProfile:
     def MassEnclosed(self, ptype, radii):
         
         COM = CenterOfMass(self.filename, ptype)
-        xcom, ycom, zcom = COM.COM_P()
-        #questions to ask ekta:
-        #what should delta be in COM_P
-        #what range should I choose for the radius array
-        #should calculate com position every time I change radius?
+        xcom, ycom, zcom = COM.COM_P(1)
+        masses = np.zeros(len(radii))
+        for i, r in enumerate(radii):
+            ind = np.where(self.data['type'] == ptype)
         return masses
         
         
