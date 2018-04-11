@@ -37,10 +37,28 @@ class MassProfile:
     def MassEnclosed(self, ptype, radii):
         
         COM = CenterOfMass(self.filename, ptype)
-        xcom, ycom, zcom = COM.COM_P(1)
-        masses = np.zeros(len(radii))
+        
+        #center of mass position of the galaxy
+        xcom, ycom, zcom = COM.COM_P(1) #tolerance level of 1kpc
+        
+        # calculating coordinates of each particle in COM's frame of reference
+        x_com = COM.x - xcom
+        y_com = COM.y - ycom
+        z_com = COM.z - zcom
+        r_com = np.sqrt((x_com**2) + (y_com**2) + (z_com**2)) #position vecotr magnitudes
+
+        masses = np.zeros(len(radii)) 
         for i, r in enumerate(radii):
-            ind = np.where(self.data['type'] == ptype)
+            ind = np.where((self.data['type'] == ptype) & (rcom<r))
+            mass = np.sum(self.m[ind])
+            masses[i] = mass
         return masses
+    
+    def MassEnclosedTotal(self, radii):
+        halo_mass  = self.MassEnclosed(1, radii)
+        disk_mass  = self.MassEnclosed(2, radii)
+        bluge_mass = self.MassEnclosed(3, radii)
+        total_mass = halo_mass + disk_mass + bulge_mass
+        return total_mass
         
         
