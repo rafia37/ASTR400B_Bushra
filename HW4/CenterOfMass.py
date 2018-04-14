@@ -50,23 +50,25 @@ class CenterOfMass:
         """
         return np.sum(self.m)
         
-    def COMdefine(self, x, y, z):
+    def COMdefine(self, x, y, z, i = None):
         """
         A method that calculates center of mass of a 3D parameter
         
         PARAMETERS
         ----------
         x, y, z : parameters whose center of mass needs to be found. Type = Array
+        i       : Mask in case x,y and z are masked. None by default. Type = Array
         
         RETURNS
         -------
         xcom, ycom, zcom: Center of mass of given parameters. Type = Quantity
         """
         M = self.total_mass()
+        masses = self.m if i==None else self.m[i]
         
-        xcom = np.sum(self.m*x)/M
-        ycom = np.sum(self.m*y)/M
-        zcom = np.sum(self.m*z)/M
+        xcom = np.sum(masses*x)/M
+        ycom = np.sum(masses*y)/M
+        zcom = np.sum(masses*z)/M
             
         return xcom, ycom, zcom
             
@@ -79,40 +81,60 @@ class CenterOfMass:
         rcom  = np.sqrt((xcom**2) + (ycom**2) + (zcom**2))
 
         # calculating coordinates in COM's frame of reference
-        x_com = self.x - xcom
-        y_com = self.y - ycom
-        z_com = self.z - zcom
+        xnew = self.x - xcom
+        ynew = self.y - ycom
+        znew = self.z - zcom
 
         # array of magnitudes of position vectors in the COM frame
-        rnew  = np.sqrt((x_com**2) + (y_com**2) + (z_com**2))
+        rnew  = np.sqrt((xnew**2) + (ynew**2) + (znew**2))
 
         #Defining rmax: half of max 3d separation of particles from COM position
-        rmax = np.amax(rnew)/2
+        rmax = np.max(rnew)
 
         #An initial guess for the loop
         rcom_diff = 1000   #kpc
         
         #Refining COM position to get a converged value
-        while (rcom_diff < delta):
-            ind = np.where(rnew < rmax)
-            xcom2, ycom2, zcom2 = self.COMdefine(x_com[ind], y_com[ind], z_com[ind])
+        while (delta < rcom_diff):
+            ind = np.where(rnew <= (0.5*rmax))[0]
+            #Calculating new com position
+            xcom2, ycom2, zcom2 = self.COMdefine(self.x[ind], self.y[ind], self.z[ind], i = ind)
             rcom2 = np.sqrt((xcom2**2) + (ycom2**2) + (zcom2**2))
-            rcom_diff = rcom - rcom2
-            rmax = rmax/2
+            
+            #Changing to current COM frame
+            xnew2 = self.x[ind] - xcom2
+            ynew2 = self.y[ind] - ycom2
+            znew2 = self.z[ind] - zcom2
+            
+            rnew2 = np.sqrt((xnew2**2) + (ynew2**2) + (znew2**2))
+            rmax2 = np.max(rnew2)
+            rcom_diff = np.abs(rcom - rcom2).value
+            
+            #Resetting parameters
+            rcom = rcom2
+            rmax = rmax2
+            rnew = rnew2
+            
         
         return xcom2, ycom2, zcom2
     
-    def COM_V(self, com_p, lim):
+    def COM_V(self, xcom, ycom, zcom, lim):
         """
         A method that returns COM velocity of particles within a certain limit (lim) of the COM position
         """
-        ind   = np.where(com_p < lim)  #selecting particles within the desired limit
+        #Changing coordinates to com frame
+        xnew = self.x - xcom
+        ynew = self.y - ycom
+        znew = self.z - zcom
+        rnew = np.sqrt((xnew**2) + (ynew**2) + (znew**2))
+        
+        ind = np.where(rnew.value <= lim)[0]  #selecting particles within the desired limit
         #Masking velocity arrays to select only particles within the limit 
-        vx1   = self.vx[ind]
-        vy1   = self.vy[ind]
-        vz1   = self.vz[ind]
+        vx   = self.vx[ind]
+        vy   = self.vy[ind]
+        vz   = self.vz[ind]
         #Calculating COM velocities of those particles
-        com_vx, com_vy, com_vz = self.COMdefine(vx1, vy1, vz1)
+        com_vx, com_vy, com_vz = self.COMdefine(vx, vy, vz, i=ind)
         
         return com_vx, com_vy, com_vz
 
@@ -144,14 +166,14 @@ if __name__ == "__main__":
 
     print('')
 
-    mw_x, mw_y, mw_z = MWCOM.COMdefine(MWCOM.x, MWCOM.y, MWCOM.z)
+    mw_x, mw_y, mw_z = MWCOM.COM_P(1)
     print("COM Position (kpc): %.2f, %.2f, %.2f" % (mw_x.value, mw_y.value, mw_z.value))
 
     print('')
-    mw_vx, mw_vy, mw_vz = MWCOM.COMdefine(MWCOM.vx, MWCOM.vy, MWCOM.vz)
+    mw_vx, mw_vy, mw_vz = MWCOM.COM_V(mw_x, mw_y, mw_z, 15)
     print("COM Velocity (km/s): %.2f, %.2f, %.2f" % (mw_vx.value, mw_vy.value, mw_vz.value))
 
-
+    """
     # Calculate quantities for M31 data
     print('')
     print('')
@@ -163,13 +185,13 @@ if __name__ == "__main__":
 
     print('')
 
-    m31_x, m31_y, m31_z = M31COM.COMdefine(M31COM.x, M31COM.y, M31COM.z)
+    m31_x, m31_y, m31_z = M31COM.COM_P(1)
     print("COM Position (kpc): %.2f, %.2f, %.2f" % (m31_x.value, m31_y.value, m31_z.value))
 
     print('')
-    m31_vx, m31_vy, m31_vz = M31COM.COMdefine(M31COM.vx, M31COM.vy, M31COM.vz)
+    m31_vx, m31_vy, m31_vz = M31COM.COM_V(m31_x, m31_y, m31_z, 15)
     print("COM Velocity (km/s): %.2f, %.2f, %.2f" % (m31_vx.value, m31_vy.value, m31_vz.value))
-
+    """
 
     # Calculate quantities for M33 data
     print('')
@@ -182,11 +204,11 @@ if __name__ == "__main__":
 
     print('')
 
-    m33_x, m33_y, m33_z = M33COM.COMdefine(M33COM.x, M33COM.y, M33COM.z)
+    m33_x, m33_y, m33_z = M33COM.COM_P(1)
     print("COM Position (kpc): %.2f, %.2f, %.2f" % (m33_x.value, m33_y.value, m33_z.value))
 
     print('')
-    m33_vx, m33_vy, m33_vz = M33COM.COMdefine(M33COM.vx, M33COM.vy, M33COM.vz)
+    m33_vx, m33_vy, m33_vz = M31COM.COM_V(m33_x, m33_y, m33_z, 15)
     print("COM Velocity (km/s): %.2f, %.2f, %.2f" % (m33_vx.value, m33_vy.value, m33_vz.value))
 
 
