@@ -9,10 +9,9 @@ Date Submitted: 4/10/18
 import numpy as np
 import astropy.units as u
 from astropy.constants import G
+from scipy.optimize import curve_fit
 import sys, pdb
 import matplotlib.pyplot as plt
-sys.path.insert(0, '../HW2/') #Making python search the HW2 directory 
-sys.path.insert(1, '../HW4/') #Making python search the HW4 directory 
 from ReadFile import Read
 from CenterOfMass import CenterOfMass
 
@@ -43,17 +42,17 @@ class MassProfile:
         xcom, ycom, zcom = COM.COM_P(1) #tolerance level of 1kpc
         
         # calculating coordinates of each particle in COM's frame of reference
-        x_com = COM.x - xcom
-        y_com = COM.y - ycom
-        z_com = COM.z - zcom
-        r_com = np.sqrt((x_com**2) + (y_com**2) + (z_com**2)) #position vecotr magnitudes
+        xnew = COM.x - xcom
+        ynew = COM.y - ycom
+        znew = COM.z - zcom
+        rnew = np.sqrt((xnew**2) + (ynew**2) + (znew**2)) #position vecotr magnitudes
 
         masses = np.zeros(len(radii)) 
         for i, r in enumerate(radii):
-            ind = np.where((self.data['type'] == ptype) & (rcom<r))
-            mass = np.sum(self.m[ind])
-            masses[i] = mass
-        return masses
+            ind = np.where(rnew.value<r)[0]
+            mass = np.sum(COM.m[ind])
+            masses[i] = mass.value
+        return masses*u.Msun
     
     def MassEnclosedTotal(self, radii):
         halo_mass  = self.MassEnclosed(1, radii)
@@ -77,7 +76,7 @@ class MassProfile:
         v = np.sqrt((G*M)/radii)
         return v
     
-    def HernquistVCirc(r, a, M_halo):
+    def HernquistVCirc(self, r, a, M_halo):
         M = self.HernquistMass(r, a, M_halo)
         v = np.sqrt((G*M)/r)
         return v
@@ -95,8 +94,26 @@ if __name__ == '__main__':
     bulge_mass = MW_MP.MassEnclosed(3, radii)
     total_mass = MW_MP.MassEnclosedTotal(radii)
     
-    plt.plot(radii, halo_mass)
-    plt.plot(radii, disk_mass)
-    plt.plot(radii, bulge_mass)
-    plt.plot(radii, total_mass)
+    """
+    plt.semilogy(radii, halo_mass, label = 'Halo')
+    plt.semilogy(radii, disk_mass, label = 'Disk')
+    plt.semilogy(radii, bulge_mass, label = 'Bulge')
+    plt.semilogy(radii, total_mass, label = 'Total')
+    plt.title('Mass distribution of Milky Way as a function of radius')
+    plt.xlabel('Radius (kpc)')
+    plt.ylabel('log(Mass)')
+    plt.legend(loc = 'best')
     plt.show()
+    """
+    
+    M_halo = MW_MP.MassEnclosed(1, [15]) #15kpc radius
+    plt.semilogy(radii, halo_mass, label = 'Dark Matter Profile')
+    for a in np.linspace(0.01, 1, 9):  
+        plt.semilogy(radii, MW_MP.HernquistMass(radii, a, M_halo), label = 'a = %.2f' % a)
+    plt.legend(loc = 'best')
+    plt.xlabel('Radius (kpc)')
+    plt.ylabel('Mass')
+    plt.title('Fitting Herquist model to MW dark matter profile')
+    plt.show()
+    
+    
