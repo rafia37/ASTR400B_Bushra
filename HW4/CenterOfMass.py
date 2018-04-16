@@ -63,7 +63,8 @@ class CenterOfMass:
         -------
         xcom, ycom, zcom: Center of mass of given parameters. Type = Quantity
         """
-        M = self.total_mass()
+        #M = self.total_mass()
+        M = np.sum(m)  
         
         xcom = np.sum(m*x)/M
         ycom = np.sum(m*y)/M
@@ -109,7 +110,7 @@ class CenterOfMass:
             rmax2 = np.max(rnew2)
             rcom_diff = np.abs(rcom - rcom2).value
             
-            pdb.set_trace()
+            #pdb.set_trace()
             
             #Resetting parameters
             xcom = xcom2
@@ -212,7 +213,7 @@ if __name__ == "__main__":
     print("COM Position (kpc): %.2f, %.2f, %.2f" % (m33_x.value, m33_y.value, m33_z.value))
 
     print('')
-    m33_vx, m33_vy, m33_vz = M31COM.COM_V(m33_x, m33_y, m33_z, 15)
+    m33_vx, m33_vy, m33_vz = M33COM.COM_V(m33_x, m33_y, m33_z, 15)
     print("COM Velocity (km/s): %.2f, %.2f, %.2f" % (m33_vx.value, m33_vy.value, m33_vz.value))
 
 
