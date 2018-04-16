@@ -50,7 +50,7 @@ class CenterOfMass:
         """
         return np.sum(self.m)
         
-    def COMdefine(self, x, y, z, i = None):
+    def COMdefine(self, x, y, z, m):
         """
         A method that calculates center of mass of a 3D parameter
         
@@ -64,11 +64,10 @@ class CenterOfMass:
         xcom, ycom, zcom: Center of mass of given parameters. Type = Quantity
         """
         M = self.total_mass()
-        masses = self.m if i==None else self.m[i]
         
-        xcom = np.sum(masses*x)/M
-        ycom = np.sum(masses*y)/M
-        zcom = np.sum(masses*z)/M
+        xcom = np.sum(m*x)/M
+        ycom = np.sum(m*y)/M
+        zcom = np.sum(m*z)/M
             
         return xcom, ycom, zcom
             
@@ -77,7 +76,7 @@ class CenterOfMass:
         A method that returns refined COM position within a given tolerance level (delta)
         """
         # initializing the coordinates and calculating position vector magnitude
-        xcom, ycom, zcom = self.COMdefine(self.x, self.y, self.z)
+        xcom, ycom, zcom = self.COMdefine(self.x, self.y, self.z, self.m)
         rcom  = np.sqrt((xcom**2) + (ycom**2) + (zcom**2))
 
         # calculating coordinates in COM's frame of reference
@@ -95,22 +94,27 @@ class CenterOfMass:
         rcom_diff = 1000   #kpc
         
         #Refining COM position to get a converged value
-        while (delta < rcom_diff):
+        while (rcom_diff > delta):
             ind = np.where(rnew <= (0.5*rmax))[0]
             #Calculating new com position
-            xcom2, ycom2, zcom2 = self.COMdefine(self.x[ind], self.y[ind], self.z[ind], i = ind)
+            xcom2, ycom2, zcom2 = self.COMdefine(self.x[ind], self.y[ind], self.z[ind], self.m[ind])
             rcom2 = np.sqrt((xcom2**2) + (ycom2**2) + (zcom2**2))
             
             #Changing to current COM frame
-            xnew2 = self.x[ind] - xcom2
-            ynew2 = self.y[ind] - ycom2
-            znew2 = self.z[ind] - zcom2
+            xnew2 = self.x - xcom2
+            ynew2 = self.y - ycom2
+            znew2 = self.z - zcom2
             
             rnew2 = np.sqrt((xnew2**2) + (ynew2**2) + (znew2**2))
             rmax2 = np.max(rnew2)
             rcom_diff = np.abs(rcom - rcom2).value
             
+            pdb.set_trace()
+            
             #Resetting parameters
+            xcom = xcom2
+            ycom = ycom2
+            zcom = zcom2
             rcom = rcom2
             rmax = rmax2
             rnew = rnew2
@@ -134,7 +138,7 @@ class CenterOfMass:
         vy   = self.vy[ind]
         vz   = self.vz[ind]
         #Calculating COM velocities of those particles
-        com_vx, com_vy, com_vz = self.COMdefine(vx, vy, vz, i=ind)
+        com_vx, com_vy, com_vz = self.COMdefine(vx, vy, vz, self.m[ind])
         
         return com_vx, com_vy, com_vz
 
@@ -173,7 +177,7 @@ if __name__ == "__main__":
     mw_vx, mw_vy, mw_vz = MWCOM.COM_V(mw_x, mw_y, mw_z, 15)
     print("COM Velocity (km/s): %.2f, %.2f, %.2f" % (mw_vx.value, mw_vy.value, mw_vz.value))
 
-    """
+    
     # Calculate quantities for M31 data
     print('')
     print('')
@@ -191,7 +195,7 @@ if __name__ == "__main__":
     print('')
     m31_vx, m31_vy, m31_vz = M31COM.COM_V(m31_x, m31_y, m31_z, 15)
     print("COM Velocity (km/s): %.2f, %.2f, %.2f" % (m31_vx.value, m31_vy.value, m31_vz.value))
-    """
+    
 
     # Calculate quantities for M33 data
     print('')
