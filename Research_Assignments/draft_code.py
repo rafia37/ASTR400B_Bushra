@@ -18,12 +18,30 @@ M31_data = Read('../../M31_000.txt')[2]
 #if some particles have velocities higher than the escape velocity of M31, they are unbound
 #Calculate the fraction of unbound particles (answers question 4)
 
-#creating center of ass objects using disk particles
-MWCOM  = CenterOfMass("../../MW_000.txt", 2)
-M31COM = CenterOfMass("../../M31_000.txt", 2)
+def magnitude(x, y, z = 0):
+    return np.sqrt(x**2 + y**2 + z**2)
 
-#Present day com positions of the two galaxies
-mw_xcom, mw_ycom, mw_zcom = MWCOM.COM_P(1)
-m31_xcom, m31_ycom, m31_zcom = M31COM.COM_P(1)
+#creating M31 center of mass object using disk particles at snapshot 0
+com = CenterOfMass("../../M31_000.txt", 2)
 
-#need to complete hw5 to procede
+#Present day com position & velocity of M31
+xcom, ycom, zcom = com.COM_P(1)
+vxcom, vycom, vzcom = com.COM_V(xcom, ycom, zcom, 15)
+
+#Getting position & velocity of all particle in COM reference frame
+x  = com.x - xcom
+y  = com.y - ycom
+z  = com.z - zcom
+vx = com.vx - vxcom
+vy = com.vy - vycom
+vz = com.vz - vzcom
+
+r = magnitude(x - xcom, y - ycom, z - zcom) #An array that contains distance of all particles from center of mass
+
+eqt_vel = magnitude(vx, vy) #An array that contains equatorial velocity of all particles from center of mass
+
+
+#R = 8.29 kpc: rmin = R-0.1R = 7.46kpc, rmax = R+0.1R = 9.12kpc
+#V = 239 km/s; vmin = V-0.1V = 215.1 km/s, vmax = V+0.1V = 262.9
+mask = np.where((r > 7.46) & (r < 9.12) & (eqt_vel > 215.1) & (eqt_vel < 262.9) & (np.abs(vz) < 30))
+
