@@ -28,16 +28,12 @@ def OrbitCOM(galaxy, start, end, n):
         
         row_ind = int(i/n)
         Orbit[row_ind] = [t.value, x.value, y.value, z.value, vx.value, vy.value, vz.value]
-        print('i = %i' % i)
+        print('%s i = %i' % (galaxy, i))
         
     np.savetxt(fileout, Orbit, header='t x y z vx vy vz', comments='#', fmt=['%.2f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f'])
     
-    return Orbit
+    return fileout
 
-orb = OrbitCOM('MW', 0, 10, 2)
-print(orb)
-        
-        
-    
-        
-        
+orb_mw  = OrbitCOM('MW', 0, 800, 5)
+orb_m31 = OrbitCOM('M31', 0, 800, 5)
+orb_m33 = OrbitCOM('M33', 0, 800, 5)
