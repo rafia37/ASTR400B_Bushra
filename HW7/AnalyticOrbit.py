@@ -56,4 +56,16 @@ class M33AnalyticOrbit:
                 ai = a*(B/np.sqrt(z**2 + zd**2))*z
                 
             return ai
+        
+        def M31Acceleration(x, y, z, i):
+            
+            a_halo  = self.HernquistAccel(self.Mhalo, self.rhalo, x, y, z, i)
+            a_bulge = self.HernquistAccel(self.Mbulge, self.rbulge, x, y, z, i)
+            a_disk  = self.MiyamotoNagaiAccel(self.Mdisk, self.rd, x, y, z, i)
+            
+            a_tot = a_halo + a_bulge + a_disk
+            
+            return a_tot
+        
+        
             
