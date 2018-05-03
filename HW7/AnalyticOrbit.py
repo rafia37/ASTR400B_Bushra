@@ -1,12 +1,19 @@
 import numpy as np
 import astropy.units as u
 import pdb
-from ReadFile import Read
+import matplotlib
+matplotlib.use('agg')
+import matplotlib.pyplot as plt
+from astropy.io import ascii
+
+
 
 
 class M33AnalyticOrbit:
     
     def __init__(self, filename):
+        
+        self.fname = filename
         
         #Initializing COM position and COM velocity vectore of M33 with respect to M31 from HW4 results
         self.x, self.y, self.z    = -98.53, -120.01, -127.76
@@ -47,7 +54,7 @@ class M33AnalyticOrbit:
         zd = self.rd/5
         R  = np.sqrt(x**2 + y**2)
         B  = rd + np.sqrt(z**2 + zd**2)
-        a  = -(G*M)/((R**2 + B**2)**1.5)
+        a  = -(self.G*M)/((R**2 + B**2)**1.5)
         if i=='x':
             ai = a*x
         elif i=='y':
@@ -58,7 +65,7 @@ class M33AnalyticOrbit:
         return ai
 
 
-    def M31Accel(x, y, z, i):
+    def M31Accel(self, x, y, z, i):
 
         a_halo  = self.HernquistAccel(self.Mhalo, self.rhalo, x, y, z, i)
         a_bulge = self.HernquistAccel(self.Mbulge, self.rbulge, x, y, z, i)
@@ -87,7 +94,7 @@ class M33AnalyticOrbit:
 
     def OrbitIntegrator(self, t0, dt, tmax):
 
-        OrbitParam = np.zeros([int(np.around(t_max/dt))+1, 7])
+        OrbitParam = np.zeros([int(np.around(tmax/dt))+1, 7])
 
         x, y, z = self.x, self.y, self.z
         vx, vy, vz = self.vx, self.vy, self.vz
@@ -103,10 +110,41 @@ class M33AnalyticOrbit:
 
             t = t + dt
 
-        np.savetxt(filename, OrbitParam, header = 't x y z vx vy vz', comments = '#', fmt = ['%.2f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f'])
+        np.savetxt(self.fname, OrbitParam, header = 't x y z vx vy vz', comments = '#', fmt = ['%.2f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f'])
 
-        return filename
+        return self.fname
 
+    
+def mag(x, y, z = 0):
+    return np.sqrt(x**2 + y**2 + z**2)
         
-                
-            
+M33Orb = M33AnalyticOrbit('M33_orbit.txt')
+M33Orb.OrbitIntegrator(0, 0.1, 10.0)
+
+
+M33 = ascii.read(M33Orb.fname)
+M31_hw6 = ascii.read('Orbit_M31.txt')
+M33_hw6 = ascii.read('Orbit_M33.txt')
+
+M33_pos = mag(M33['x'], M33['y'], M33['z'])
+M33_vel = mag(M33['vx'], M33['vy'], M33['vz'])
+
+relative_pos = mag(M31_hw6['x'] - M33_hw6['x'], 
+                   M31_hw6['y'] - M33_hw6['y'], 
+                   M31_hw6['z'] - M33_hw6['z'])
+
+relative_vel = mag(M31_hw6['vx'] - M33_hw6['vx'], 
+                   M31_hw6['vy'] - M33_hw6['vy'], 
+                   M31_hw6['vz'] - M33_hw6['vz'])
+
+
+plt.plot(M33['t'], M33_pos)
+plt.plot(M31_hw6['t'], relative_pos)
+plt.savefig('Orbital_Position.png')
+plt.cla()
+
+plt.plot(M33['t'], M33_vel)
+plt.plot(M31_hw6['t'], relative_vel)
+plt.savefig('Orbital_Velocity.png')
+
+seperation = np.sqrt(M31_hw6['x'])
