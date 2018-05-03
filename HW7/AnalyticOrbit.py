@@ -57,7 +57,8 @@ class M33AnalyticOrbit:
                 
             return ai
         
-        def M31Acceleration(x, y, z, i):
+        
+        def M31Accel(x, y, z, i):
             
             a_halo  = self.HernquistAccel(self.Mhalo, self.rhalo, x, y, z, i)
             a_bulge = self.HernquistAccel(self.Mbulge, self.rbulge, x, y, z, i)
@@ -66,6 +67,23 @@ class M33AnalyticOrbit:
             a_tot = a_halo + a_bulge + a_disk
             
             return a_tot
+        
+        
+        def LeapFrog(self, dt, x, y, z, vx, vy, vz):
+            
+            x_mid = x + (vx*dt*0.5)
+            y_mid = y + (vy*dt*0.5)
+            z_mid = z + (vz*dt*0.5)
+            
+            vx_full = vx + self.M31Accel(x_mid, y_mid, z_mid, 'x')*dt
+            vy_full = vy + self.M31Accel(x_mid, y_mid, z_mid, 'y')*dt
+            vz_full = vz + self.M31Accel(x_mid, y_mid, z_mid, 'z')*dt
+            
+            x_full = x + 0.5*(vx + vx_full)*dt
+            y_full = y + 0.5*(vy + vy_full)*dt
+            z_full = z + 0.5*(vz + vz_full)*dt
+            
+            return x_full, y_full, z_full, vx_full, vy_full, vz_full
         
         
             
