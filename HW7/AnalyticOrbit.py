@@ -28,5 +28,32 @@ class M33AnalyticOrbit:
         self.G = 4.498768e-6
         
         
+        def HernquistAccel(self, M, ra, x, y, z, i):
+            """
+            A function that calculates bulge or halo acceleration.
+            """
+            
+            r  = np.sqrt(x**2 + y**2 + z**2)
+            a  = -(self.G*M)/(r*((ra+r)**2))
+            ai = (a*x) if i=='x' else (a*y) if i=='y' else (a*z)
+            
+            return ai
         
         
+        def MiyamotoNagaiAccel(self, M, rd, x, y, z, i):
+            """
+            A function that calculates disk acceleration
+            """
+            zd = self.rd/5
+            R  = np.sqrt(x**2 + y**2)
+            B  = rd + np.sqrt(z**2 + zd**2)
+            a  = -(G*M)/((R**2 + B**2)**1.5)
+            if i=='x':
+                ai = a*x
+            elif i=='y':
+                ai = a*y
+            else:
+                ai = a*(B/np.sqrt(z**2 + zd**2))*z
+                
+            return ai
+            
