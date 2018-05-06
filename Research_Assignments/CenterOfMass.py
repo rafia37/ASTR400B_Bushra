@@ -72,7 +72,7 @@ class CenterOfMass:
             
         return xcom, ycom, zcom
             
-    def COM_P(self, delta):
+    def COM_P(self, delta, VolDec):
         """
         A method that returns refined COM position within a given tolerance level (delta)
         """
@@ -96,7 +96,8 @@ class CenterOfMass:
         
         #Refining COM position to get a converged value
         while (rcom_diff > delta):
-            ind = np.where(rnew <= (0.5*rmax))[0]
+            ind = np.where(rnew <= (rmax/VolDec))[0]
+            
             #Calculating new com position
             xcom2, ycom2, zcom2 = self.COMdefine(self.x[ind], self.y[ind], self.z[ind], self.m[ind])
             rcom2 = np.sqrt((xcom2**2) + (ycom2**2) + (zcom2**2))
