@@ -165,16 +165,19 @@ if histograms:
 if time_series:
 
     #selecting 5 particles randomly from the masked particles
-    ind   = np.random.randint(0, len(r0), 5)
+    ind   = np.random.randint(0, len(mask1[0]), 5)
     v0    = magnitude(eq_vel0, vz0.value)
-    ini_r = r0[ind]
-    ini_v = v0[ind]
+    ini_r = r0[mask1][ind]
+    ini_v = v0[mask1][ind]
     
+    #Uncomment this block if you want to regenerate the time, pos, vel arrays
+    """
     #initializing arrays to hold information for those 5 particles
     snaps = np.arange(0, 550, 10)
     time  = np.zeros([len(snaps)])
     pos   = np.zeros([len(snaps),5])
     vel   = np.zeros([len(snaps),5])
+    
     
     #looping over every 5 snapshots
     for i, s in enumerate(snaps):
@@ -188,28 +191,32 @@ if time_series:
         com = CenterOfMass(fname, 2)
         r, eq_vel, vz, param = get_com_param(com)
         v = magnitude(eq_vel, vz.value)
-        print((com.time/10000.0).value, r[ind], v[ind])
+        print((com.time/10000.0).value, r[mask1][ind], v[mask1][ind])
         time[i] = (com.time/10000.0).value    #converting Myr to Gyr
-        pos[i]  = r[ind]
-        vel[i]  = v[ind]
+        pos[i]  = r[mask1][ind]
+        vel[i]  = v[mask1][ind]
     
     #Saving the generated arrays
-    np.savetxt(time, 'time5.txt', fmt = ['%.2f'])
-    np.savetxt(pos, 'pos5.txt', fmt = ['%.2f', '%.2f', '%.2f', '%.2f', '%.2f'])
-    np.savetxt(vel, 'vel5.txt', fmt = ['%.2f', '%.2f', '%.2f', '%.2f', '%.2f'])
+    np.savetxt( 'time5.txt', time, fmt = ['%.2f'])
+    np.savetxt('pos5.txt', pos, fmt = ['%.2f', '%.2f', '%.2f', '%.2f', '%.2f'])
+    np.savetxt('vel5.txt', vel, fmt = ['%.2f', '%.2f', '%.2f', '%.2f', '%.2f'])
+    """
     
-    fig, (ax1, ax2) = plt.subplots(1, 2, sharex = True)
+    time = ascii.read('Data/time5.txt')
+    pos = ascii.read('Data/pos5.txt')
+    vel = ascii.read('Data/vel5.txt')
+    fig, (ax1, ax2) = plt.subplots(2, 1, sharex = True)
+    lstyles = [':', '--', '-']
+    for i in range(3):
+        colname = 'col%i' % (i+1)
+        ax1.plot(time, pos[colname], lstyles[i])
+        ax2.plot(time, vel[colname], lstyles[i])
     
-    for i in range(5):
-        ax1.plot(time, pos[:, i], label = 'r0 = %.2f' % ini_r[i])
-        ax2.plot(time, vel[:, i], label = 'r0 = %.2f' % ini_v[i])
-    
-    ax1.legend(loc = 'best')
-    ax1.ylabel('Position (kpc)')
-    ax2.ylabel('Velocity(km/s)')
-    ax2.xlabel('Time (Gyr)')
-    ax2.legend(loc = 'best')
+    ax1.set_ylabel('Position (kpc)')
+    ax2.set_ylabel('Velocity(km/s)')
+    ax2.set_xlabel('Time (Gyr)')
     fig.suptitle('Position & Velocity Of 5 particles as a function of time')
+    fig.savefig('trajectory.png')
     plt.close()
         
       
